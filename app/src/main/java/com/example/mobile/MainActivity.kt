@@ -5,18 +5,34 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
+import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var goalLayout: LinearLayout
     private lateinit var planLayout: LinearLayout
+
+    // Calendar 관련 변수 추가
+    private lateinit var yearSpinner: Spinner
+    private lateinit var monthSpinner: Spinner
+    private lateinit var daysContainer: LinearLayout
+    private lateinit var prevButton: Button
+    private lateinit var nextButton: Button
+
+    private val calendar: Calendar = Calendar.getInstance()
+    private val koreanWeekDays = arrayOf("일", "월", "화", "수", "목", "금", "토")
+    private var startDayOffset = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,13 +46,11 @@ class MainActivity : AppCompatActivity() {
         val planButton: ImageButton = findViewById(R.id.plan_button)
         val planpageBtn: ImageButton = findViewById(R.id.nav_button4)
 
-        // goal_button 클릭 시 GoalSettingActivity로 이동
         goalButton.setOnClickListener {
             val intent = Intent(this, GoalSettingActivity::class.java)
             startActivity(intent)
         }
 
-        // plan_button 클릭 시 PlanSettingActivity로 이동
         planButton.setOnClickListener {
             val intent = Intent(this, PlanSettingActivity::class.java)
             startActivity(intent)
@@ -47,16 +61,68 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // 저장된 목표와 학습 계획을 로드
         loadGoals()
         loadPlans()
+
+        // Calendar 관련 코드 추가
+        yearSpinner = findViewById(R.id.yearSpinner)
+        monthSpinner = findViewById(R.id.monthSpinner)
+        daysContainer = findViewById(R.id.daysContainer)
+        prevButton = findViewById(R.id.prevButton)
+        nextButton = findViewById(R.id.nextButton)
+
+        val years = (2020..2030).toList().map { it.toString() }
+        val yearAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
+        yearSpinner.adapter = yearAdapter
+        yearSpinner.setSelection(years.indexOf(calendar.get(Calendar.YEAR).toString()))
+
+        val months = resources.getStringArray(R.array.months)
+        val monthAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
+        monthSpinner.adapter = monthAdapter
+        monthSpinner.setSelection(calendar.get(Calendar.MONTH))
+
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        updateDays()
+
+        prevButton.setOnClickListener {
+            startDayOffset -= 5
+            updateDays()
+        }
+
+        nextButton.setOnClickListener {
+            startDayOffset += 5
+            updateDays()
+        }
+
+        monthSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                calendar.set(Calendar.MONTH, position)
+                calendar.set(Calendar.DAY_OF_MONTH, 1)
+                startDayOffset = 0
+                updateDays()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                calendar.set(Calendar.YEAR, years[position].toInt())
+                calendar.set(Calendar.DAY_OF_MONTH, 1)
+                startDayOffset = 0
+                updateDays()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
     private fun loadGoals() {
         val goals = sharedPreferences.getStringSet("goals", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         goalLayout.removeAllViews()
         for (goal in goals) {
-            addGoalCheckBox(goal)
+            val goalView = createGoalOrPlanView(goal, true)
+            goalLayout.addView(goalView)
         }
     }
 
@@ -64,181 +130,126 @@ class MainActivity : AppCompatActivity() {
         val plans = sharedPreferences.getStringSet("plans", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         planLayout.removeAllViews()
         for (plan in plans) {
-            addPlanCheckBox(plan)
+            val planView = createGoalOrPlanView(plan, false)
+            planLayout.addView(planView)
         }
     }
 
-    private fun addGoalCheckBox(goal: String) {
+    private fun createGoalOrPlanView(text: String, isGoal: Boolean): LinearLayout {
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.HORIZONTAL
+
         val checkBox = CheckBox(this)
-        checkBox.text = goal
-        checkBox.id = View.generateViewId()
-
-        // Load the checked state
-        val isChecked = sharedPreferences.getBoolean("goal_$goal", false)
-        checkBox.isChecked = isChecked
-
-        // Save the checked state when changed
+        checkBox.text = text
+        checkBox.isChecked = isChecked(text)
         checkBox.setOnCheckedChangeListener { _, isChecked ->
-            with(sharedPreferences.edit()) {
-                putBoolean("goal_$goal", isChecked)
-                apply()
+            setChecked(text, isChecked)
+        }
+        val checkBoxParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        checkBox.layoutParams = checkBoxParams
+
+        val editButton = Button(this)
+        editButton.text = "수정"
+        editButton.setOnClickListener {
+            val intent = if (isGoal) {
+                Intent(this, GoalSettingActivity::class.java).apply {
+                    putExtra("isEditMode", true)
+                    putExtra("goalTitle", text)
+                }
+            } else {
+                Intent(this, PlanSettingActivity::class.java).apply {
+                    putExtra("isEditMode", true)
+                    putExtra("plan", text)
+                }
             }
+            startActivity(intent)
         }
 
-        val editButton = Button(this).apply {
-            text = "Edit"
-            id = View.generateViewId()
-            setOnClickListener {
-                editGoal(goal)
+        val deleteButton = Button(this)
+        deleteButton.text = "삭제"
+        deleteButton.setOnClickListener {
+            if (isGoal) {
+                removeGoal(text)
+            } else {
+                removePlan(text)
             }
+            loadGoals()
+            loadPlans()
         }
 
-        val deleteButton = Button(this).apply {
-            text = "Delete"
-            id = View.generateViewId()
-            setOnClickListener {
-                removeGoal(goal)
-                loadGoals()
-            }
-        }
+        val buttonLayout = LinearLayout(this)
+        buttonLayout.orientation = LinearLayout.HORIZONTAL
+        buttonLayout.addView(editButton)
+        buttonLayout.addView(deleteButton)
 
-        val itemLayout = RelativeLayout(this)
-        val checkBoxParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.ALIGN_PARENT_START)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-        }
+        layout.addView(checkBox)
+        layout.addView(buttonLayout)
 
-        val editButtonParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.ALIGN_PARENT_END)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-        }
-
-        val deleteButtonParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.LEFT_OF, editButton.id)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-            marginEnd = 8 // 버튼 간의 간격
-        }
-
-        itemLayout.addView(checkBox, checkBoxParams)
-        itemLayout.addView(editButton, editButtonParams)
-        itemLayout.addView(deleteButton, deleteButtonParams)
-        goalLayout.addView(itemLayout)
+        return layout
     }
 
-    private fun addPlanCheckBox(plan: String) {
-        val checkBox = CheckBox(this)
-        checkBox.text = plan
-        checkBox.id = View.generateViewId()
-
-        // Load the checked state
-        val isChecked = sharedPreferences.getBoolean("plan_$plan", false)
-        checkBox.isChecked = isChecked
-
-        // Save the checked state when changed
-        checkBox.setOnCheckedChangeListener { _, isChecked ->
-            with(sharedPreferences.edit()) {
-                putBoolean("plan_$plan", isChecked)
-                apply()
-            }
+    private fun setChecked(text: String, isChecked: Boolean) {
+        val checkedItems = sharedPreferences.getStringSet("checkedItems", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        if (isChecked) {
+            checkedItems.add(text)
+        } else {
+            checkedItems.remove(text)
         }
-
-        val editButton = Button(this).apply {
-            text = "수정"
-            id = View.generateViewId()
-            setOnClickListener {
-                editPlan(plan)
-            }
+        with(sharedPreferences.edit()) {
+            putStringSet("checkedItems", checkedItems)
+            apply()
         }
-
-        val deleteButton = Button(this).apply {
-            text = "삭제"
-            id = View.generateViewId()
-            setOnClickListener {
-                removePlan(plan)
-                loadPlans()
-            }
-        }
-
-        val itemLayout = RelativeLayout(this)
-        val checkBoxParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.ALIGN_PARENT_START)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-        }
-
-        val editButtonParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.ALIGN_PARENT_END)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-        }
-
-        val deleteButtonParams = RelativeLayout.LayoutParams(
-            RelativeLayout.LayoutParams.WRAP_CONTENT,
-            RelativeLayout.LayoutParams.WRAP_CONTENT
-        ).apply {
-            addRule(RelativeLayout.LEFT_OF, editButton.id)
-            addRule(RelativeLayout.CENTER_VERTICAL)
-            marginEnd = 8 // 버튼 간의 간격
-        }
-
-        itemLayout.addView(checkBox, checkBoxParams)
-        itemLayout.addView(editButton, editButtonParams)
-        itemLayout.addView(deleteButton, deleteButtonParams)
-        planLayout.addView(itemLayout)
     }
 
-    private fun editGoal(goal: String) {
-        val intent = Intent(this, GoalSettingActivity::class.java)
-        intent.putExtra("isEditMode", true)
-        intent.putExtra("goalTitle", goal)
-        startActivity(intent)
-    }
-
-    private fun editPlan(plan: String) {
-        val intent = Intent(this, PlanSettingActivity::class.java)
-        intent.putExtra("isEditMode", true)
-        intent.putExtra("planTitle", plan)
-        startActivity(intent)
+    private fun isChecked(text: String): Boolean {
+        val checkedItems = sharedPreferences.getStringSet("checkedItems", mutableSetOf()) ?: mutableSetOf()
+        return checkedItems.contains(text)
     }
 
     private fun removeGoal(goal: String) {
-        val goals = sharedPreferences.getStringSet("goals", setOf())?.toMutableSet() ?: mutableSetOf()
+        val goals = sharedPreferences.getStringSet("goals", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         goals.remove(goal)
-
         with(sharedPreferences.edit()) {
             putStringSet("goals", goals)
-            remove("goal_$goal") // Remove the saved state
             apply()
         }
     }
 
     private fun removePlan(plan: String) {
-        val plans = sharedPreferences.getStringSet("plans", setOf())?.toMutableSet() ?: mutableSetOf()
+        val plans = sharedPreferences.getStringSet("plans", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         plans.remove(plan)
-
         with(sharedPreferences.edit()) {
             putStringSet("plans", plans)
-            remove("plan_$plan") // Remove the saved state
             apply()
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadGoals()
-        loadPlans()
+    private fun updateDays() {
+        daysContainer.removeAllViews()
+        val maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        val startDay = 1 + startDayOffset
+        val daysToShow = mutableListOf<Int>()
+
+        for (i in 0 until 5) {
+            val day = startDay + i
+            if (day in 1..maxDay) {
+                daysToShow.add(day)
+            }
+        }
+
+        for (day in daysToShow) {
+            val dayButton = Button(this)
+            dayButton.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            calendar.set(Calendar.DAY_OF_MONTH, day)
+            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
+            dayButton.text = "$day ${koreanWeekDays[dayOfWeek]}"
+            dayButton.setOnClickListener {
+                Toast.makeText(this, "Clicked on day $day", Toast.LENGTH_SHORT).show()
+            }
+            daysContainer.addView(dayButton)
+        }
+
+        prevButton.isEnabled = startDayOffset > 0
+        nextButton.isEnabled = startDay + 5 <= maxDay
     }
 }

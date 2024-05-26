@@ -6,12 +6,14 @@
     tools:context=".MainActivity">
 
 
+
     <!-- Title Bar -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#D1C4E9"
-        android:padding="4dp">
+        android:padding="4dp"
+        android:id="@+id/titleBar">
 
         <TextView
             android:id="@+id/title"
@@ -31,8 +33,67 @@
             android:background="@null"
             android:src="@drawable/hamburger_button"
             android:scaleType="fitCenter"
-            android:layout_margin="4dp"/> <!-- 마진 값을 줄임 -->
+            android:layout_margin="4dp"/>
     </RelativeLayout>
+
+    <!-- Calendar UI 추가 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titleBar"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingTop="16dp"
+        android:id="@+id/calendarLayout">
+
+        <Spinner
+            android:id="@+id/yearSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/prevButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/left_btn"
+                android:layout_marginEnd="10dp"/>
+
+            <Spinner
+                android:id="@+id/monthSpinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"/>
+
+            <Button
+                android:id="@+id/nextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/right_btn"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="20dp">
+
+            <LinearLayout
+                android:id="@+id/daysContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"/>
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Goal and Plan Sections -->
 
@@ -41,8 +102,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_marginTop="264dp"
+        android:layout_below="@id/calendarLayout"
+        android:layout_marginTop="23dp"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -66,8 +127,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="@null"
-                android:src="@drawable/add_button"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/add_button" />
         </RelativeLayout>
 
         <LinearLayout
@@ -98,8 +159,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="@null"
-                android:src="@drawable/add_button"
-                android:scaleType="fitCenter"/>
+                android:scaleType="fitCenter"
+                android:src="@drawable/add_button" />
         </RelativeLayout>
 
         <LinearLayout
@@ -110,7 +171,6 @@
             android:padding="8dp" />
     </LinearLayout>
 
-    <!-- Bottom Navigation Buttons -->
     <RelativeLayout
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
