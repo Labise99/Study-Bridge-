@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlanSettingActivity">
+
+    <!-- Title Bar -->
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#D1C4E9"
+        android:padding="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:background="@null"
+            android:src="@drawable/back_button"
+            android:scaleType="fitCenter"
+            android:layout_margin="4dp"/>
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="학습 계획"
+            android:textSize="20sp"
+            android:layout_centerHorizontal="true"
+            android:padding="4px"/>
+
+        <ImageButton
+            android:id="@+id/menu_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:background="@null"
+            android:src="@drawable/hamburger_button"
+            android:scaleType="fitCenter"
+            android:layout_margin="4dp" />
+    </RelativeLayout>
+
+    <!-- Plan Setting Form -->
+
+    <!-- Bottom Navigation Buttons -->
+    <LinearLayout
+        android:id="@+id/plan_form"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_bar">
+
+        <!-- Subject -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="과목"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/subject_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="자바"
+            android:padding="8dp" />
+
+        <!-- Plan Detail -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="계획 상세"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/detail_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="반복문 공부"
+            android:padding="8dp" />
+
+        <!-- Goal Time -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="목표 시간"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/goal_time_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="?android:attr/editTextBackground"
+            android:hint="2:30"
+            android:padding="8dp" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@drawable/save_button"
+            android:padding="4dp"
+            android:text="저장"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_nav_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:padding="8dp">
+
+        <ImageButton
+            android:id="@+id/nav_button1"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/score_button" />
+
+        <ImageButton
+            android:id="@+id/nav_button2"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@id/nav_button1"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/statistics_button" />
+
+        <ImageButton
+            android:id="@+id/nav_button3"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@id/nav_button2"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/home_button" />
+
+        <ImageButton
+            android:id="@+id/nav_button4"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@id/nav_button3"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/plan_button" />
+
+        <!-- 아래 작대기 추가 -->
+        <View
+            android:id="@+id/indicator"
+            android:layout_width="40dp"
+            android:layout_height="2dp"
+            android:background="#000000"
+            android:layout_below="@id/nav_button4"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="4dp"
+            android:layout_alignStart="@id/nav_button4"
+            android:layout_alignEnd="@id/nav_button4" />
+
+        <ImageButton
+            android:id="@+id/nav_button5"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toEndOf="@id/nav_button4"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="20dp"
+            android:background="@null"
+            android:scaleType="fitCenter"
+            android:src="@drawable/profile_button" />
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
