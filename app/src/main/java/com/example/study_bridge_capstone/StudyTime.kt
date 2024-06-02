@@ -11,6 +11,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import java.util.concurrent.TimeUnit
 
 class StudyTime : AppCompatActivity() {
     //앱 생명주기 감지를 위한 activityLifecycleCallbacks 호출
@@ -30,6 +31,14 @@ class StudyTime : AppCompatActivity() {
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
         override fun onActivityDestroyed(activity: Activity) {}
     }
+    val currentGoal = findViewById<TextView>(R.id.currentGoal)
+    val totalTime = findViewById<ProgressBar>(R.id.totalTime)
+    val time1 = findViewById<TextView>(R.id.time1)
+    val time2 = findViewById<TextView>(R.id.time2)
+    val restButton: Button = findViewById(R.id.restButton)
+    private var startTime = 0L
+    private var pauseOffset = 0L
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //백그라운드 상태 체크를 위한 선언
@@ -38,17 +47,34 @@ class StudyTime : AppCompatActivity() {
         setContentView(R.layout.activity_study_time)
 
         //상단의 currentGoal에 현재 공부 내용 표기
-        val currentGoal = findViewById<TextView>(R.id.currentGoal)
         currentGoal.text = "tmpgoal" //tmpgoal 자리에 전달받은 공부 내용을 입력
-        val totalTime = findViewById<ProgressBar>(R.id.totalTime)
-        totalTime.max = 100 //
+        //학습시간 진행도 초기화
+        totalTime.max = 100 //100 자리에 설정한 목표공부시간 추가
+        totalTime.progress = 0
+        time1.text = "00:00:00"
+        time2.text = "00:00:00"
+        startTime = System.currentTimeMillis()
 
+        restButton.setOnClickListener {
+            if(restButton.text == "쉬는 시간")
+            {
+                //공부 시간 정지 코드
+                //휴식 시간 시작 코드
+                //휴식 시작 타임라인DB에 추가
+            }
+            else
+            {
+                //휴식 시간 정지 코드
+                //공부 시간 시작 코드
+                //휴식 종료 타임라인DB에 추가
+            }
+        }
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
         application.unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks)
     }
-
-
 }

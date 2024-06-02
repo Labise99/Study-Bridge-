@@ -44,21 +44,35 @@
         android:layout_height="210dp"
         android:indeterminateDrawable="@drawable/gradient_spinner"
         app:layout_constraintTop_toBottomOf="@id/line1"
-        app:layout_constraintBottom_toTopOf="@id/restTime"
+        app:layout_constraintBottom_toTopOf="@id/bgRestTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- restTime ProgressBar -->
-    <ProgressBar
-        android:id="@+id/restTime"
+    <!-- 동심원 -->
+    <FrameLayout
+        android:id="@+id/bgRestTime"
         android:layout_width="148dp"
         android:layout_height="148dp"
-        android:indeterminateDrawable="@drawable/gradient_spinner"
         app:layout_constraintTop_toBottomOf="@id/totalTime"
         app:layout_constraintBottom_toTopOf="@id/line2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- 큰 원 -->
+        <View
+            android:layout_width="148dp"
+            android:layout_height="148dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle1" />
+
+        <!-- 작은 원 -->
+        <View
+            android:layout_width="127dp"
+            android:layout_height="127dp"
+            android:layout_gravity="center"
+            android:background="@drawable/circle2" />
+
+    </FrameLayout>
     <!-- 시간 텍스트뷰 1 -->
     <TextView
         android:id="@+id/time1"
@@ -76,8 +90,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00:00"
-        app:layout_constraintTop_toTopOf="@id/restTime"
-        app:layout_constraintBottom_toBottomOf="@id/restTime"
+        app:layout_constraintTop_toTopOf="@id/bgRestTime"
+        app:layout_constraintBottom_toBottomOf="@id/bgRestTime"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
