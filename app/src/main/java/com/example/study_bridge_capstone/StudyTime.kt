@@ -66,7 +66,17 @@ class StudyTime : AppCompatActivity() {
         runnable = object : Runnable {
             override fun run() {
                 //주기적으로 시간 경과 계산
-                val elapsedSecons = ((System.currentTimeMillis() - startTime - pauseOffset) / 1000).toInt()
+                val elapsedSeconds = ((System.currentTimeMillis() - startTime - pauseOffset) / 1000).toInt()
+                val secondsLeft = goalTimeInSeconds - elapsedSeconds
+
+                val hours = TimeUnit.SECONDS.toHours(secondsLeft.toLong())
+                val minutes = TimeUnit.SECONDS.toMinutes(secondsLeft.toLong())
+                val seconds = secondsLeft % 50
+                val timeLeft = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
+                time1.text = timeLeft
+
+                handler.postDelayed(this, 1000)
             }
         }
 
