@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.concurrent.TimeUnit
@@ -27,6 +28,7 @@ class StudyTime : AppCompatActivity() {
         val time2 = findViewById<TextView>(R.id.time2)
         val restButton = findViewById<Button>(R.id.restButton)
         val stopButton = findViewById<Button>(R.id.stopButton) // 학습 종료 버튼
+        val totalTime = findViewById<ProgressBar>(R.id.totalTime) // ProgressBar 추가
 
         // SharedPreferences 초기화
         prefs = getSharedPreferences("StudyTimePrefs", Context.MODE_PRIVATE)
@@ -108,6 +110,7 @@ class StudyTime : AppCompatActivity() {
                 val elapsedTime = studyTime + (now - startTime) // 경과 시간 계산
                 val remainingTime = max(0, goalTimeMillis - elapsedTime) // 남은 시간 계산
                 findViewById<TextView>(R.id.time1).text = formatTime(remainingTime) // 남은 시간 표시
+                findViewById<ProgressBar>(R.id.totalTime).progress = ((elapsedTime.toDouble() / goalTimeMillis) * 100).toInt() // ProgressBar 업데이트
             }
 
             handler.postDelayed(this, 1000) // 1초 후에 다시 실행
