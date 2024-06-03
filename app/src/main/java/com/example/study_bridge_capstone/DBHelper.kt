@@ -1,65 +1,143 @@
 package com.example.study_bridge_capstone
 
+import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-class DBHelper(context: Context) :
-    SQLiteOpenHelper(context, DBNAME, null, DBVERSION) { //SQLiteOpenHelper를 상속받음
+// DBHelper 클래스: SQLite 데이터베이스를 관리하는 클래스
+class DBHelper(context: Context) : SQLiteOpenHelper(context, "database.db", null, 1) {
 
-    companion object { //복수 접근을 방지하기 위한 싱글턴 패턴. DB의 모든 접근은 DBHelper를 통해서 이루어진다.
-        const val DBNAME = "study_bridge.db" //db의 이름
-        const val DBVERSION = 0 //db 버전. 예시를 따라가기 위한 변수
+    // 데이터베이스가 처음 생성될 때 호출되는 메소드
+    override fun onCreate(db: SQLiteDatabase) {
+        val createProfileTableSql = """
+            CREATE TABLE profile (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nickname TEXT,
+                goal TEXT,
+                identity TEXT
+            )
+        """.trimIndent()
 
-        //Double Checked Locking
-        @Volatile
-        private var instance: DBHelper? = null
+        val createTimelineTableSql = """
+            CREATE TABLE timeline (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event TEXT,
+                time TEXT
+            )
+        """.trimIndent()
 
-        fun getInstance(context: Context) =
-            instance ?: synchronized(DBHelper::class.java) {
-                instance ?: DBHelper(context).also {
-                    instance = it
+        val createGradeDataTableSql = """
+            CREATE TABLE grade_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                semester TEXT,
+                subject TEXT,
+                total_credit REAL,
+                liberal_credit REAL,
+                major_credit REAL,
+                grade REAL
+            )
+        """.trimIndent()
+
+        val createExamDataTableSql = """
+            CREATE TABLE exam_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                date TEXT,
+                subject TEXT,
+                grade INTEGER,
+                raw INTEGER
+            )
+        """.trimIndent()
+
+        val createPlanTableSql = """
+            CREATE TABLE plan (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT,
+                study_time TIME
+            )
+        """.trimIndent()
+
+        val createCalendarTableSql = """
+            CREATE TABLE calendar (
+                date TEXT,
+                pid INTEGER,
+                FOREIGN KEY(pid) REFERENCES plan(id)
+            )
+        """.trimIndent()
+
+        db.execSQL(createProfileTableSql)
+        db.execSQL(createTimelineTableSql)
+        db.execSQL(createGradeDataTableSql)
+        db.execSQL(createExamDataTableSql)
+        db.execSQL(createPlanTableSql)
+        db.execSQL(createCalendarTableSql)
+    }
+
+    // 데이터베이스가 업그레이드되어야 할 때 호출되는 메소드
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        db.execSQL("DROP TABLE IF EXISTS profile")
+        db.execSQL("DROP TABLE IF EXISTS timeline")
+        db.execSQL("DROP TABLE IF EXISTS grade_data")
+        db.execSQL("DROP TABLE IF EXISTS exam_data")
+        db.execSQL("DROP TABLE IF EXISTS plan")
+        db.execSQL("DROP TABLE IF EXISTS calendar")
+        onCreate(db)
+    }
+
+    // 데이터 삽입을 위한 메소드
+    // tableName: 데이터를 삽입할 테이블의 이름
+    // data: 삽입할 데이터. 키는 컬럼 이름, 값은 해당 컬럼에 삽입할 값
+    fun insert(tableName: String, data: Map<String, Any>) {
+        val values = ContentValues().apply {
+            for ((key, value) in data) {
+                when (value) {
+                    is String -> put(key, value)
+                    is Int -> put(key, value)
+                    is Long -> put(key, value)
+                    is Float -> put(key, value)
+                    is Boolean -> put(key, value)
+                    else -> throw IllegalArgumentException("Unsupported data type")
                 }
             }
-    }
-
-    override fun onCreate(db: SQLiteDatabase?) { //테이블 생성
-        val createQuery :String = "create table test (" +
-                "id integer primary key autoincrement, " +
-                "txt text); "
-        db?.execSQL(createQuery)
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) { //테이블 업데이트
-        if(oldVersion != newVersion) { //테이블이 옛날 버전일 때
-            db?.execSQL("drop table if exists timeline") //기존 테이블 드랍 후
-            onCreate(db) //새로 테이블 생성. 이때 기존 데이터는 모두 날아간다.
         }
+        writableDatabase.insert(tableName, null, values)
     }
 
-    fun createData(db: SQLiteDatabase?, tableName: String, member: String) { //데이터 삽입 함수
-        val createQuery: String = "insert into $tableName" + //어느 테이블에
-                "values ( $member );" //어떤 내용을 삽입할 것인가
-        db?.execSQL(createQuery)
+    // 데이터 조회를 위한 메소드
+    // tableName: 데이터를 조회할 테이블의 이름
+    // selection: 조회할 데이터의 조건. SQL의 WHERE 절에 해당
+    // selectionArgs: selection에 ?가 포함된 경우, ?를 대체할 값들
+    fun read(tableName: String, selection: String?, selectionArgs: Array<String>?): Cursor {
+        return readableDatabase.query(tableName, null, selection, selectionArgs, null, null, null)
     }
 
-    fun readData(db: SQLiteDatabase?, tableName: String, target: String, searchQuery: String) { //데이터 읽기
-        val createQuery = "select $target from $tableName " + //어느 테이블의 어떤 애트리뷰트를
-                "where $searchQuery );" //어떤 조건으로 검색할 것인가
-        db?.execSQL(createQuery)
+    // 데이터 업데이트를 위한 메소드
+    // tableName: 데이터를 업데이트할 테이블의 이름
+    // data: 업데이트할 데이터. 키는 컬럼 이름, 값은 해당 컬럼에 업데이트할 값
+    // whereClause: 업데이트할 데이터의 조건. SQL의 WHERE 절에 해당
+    // whereArgs: whereClause에 ?가 포함된 경우, ?를 대체할 값들
+    fun update(tableName: String, data: Map<String, Any>, whereClause: String, whereArgs: Array<String>) {
+        val values = ContentValues().apply {
+            for ((key, value) in data) {
+                when (value) {
+                    is String -> put(key, value)
+                    is Int -> put(key, value)
+                    is Long -> put(key, value)
+                    is Float -> put(key, value)
+                    is Boolean -> put(key, value)
+                    else -> throw IllegalArgumentException("Unsupported data type")
+                }
+            }
+        }
+        writableDatabase.update(tableName, values, whereClause, whereArgs)
     }
 
-    fun updateData(db: SQLiteDatabase?, tableName: String, editQuery: String, searchQuery: String) { //데이터 수정
-        val createQuery = "update $tableName " + //어떤 테이블의 내용을
-                "set $editQuery " + //어떻게 수정할 것인가
-                "where $searchQuery );" //어떤 조건에 해당하는 튜플을 수정하라 것인가
-        db?.execSQL(createQuery)
+    // 데이터 삭제를 위한 메소드
+    // tableName: 데이터를 삭제할 테이블의 이름
+    // whereClause: 삭제할 데이터의 조건. SQL의 WHERE 절에 해당
+    // whereArgs: whereClause에 ?가 포함된 경우, ?를 대체할 값들
+    fun delete(tableName: String, whereClause: String, whereArgs: Array<String>) {
+        writableDatabase.delete(tableName, whereClause, whereArgs)
     }
-
-    fun deleteData(db: SQLiteDatabase?, tableName: String, searchQuery: String) { //데이터 삭제
-        val createQuery = "delete from $tableName " + //어느 테이블의
-                "where $searchQuery );" //어떤 조건에 해당하는 튜플을 삭제할 것인가
-        db?.execSQL(createQuery)
-    }
-
 }
