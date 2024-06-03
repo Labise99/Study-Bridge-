@@ -1,6 +1,7 @@
 package com.example.study_bridge_capstone
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
@@ -25,6 +26,7 @@ class StudyTime : AppCompatActivity() {
         val time1 = findViewById<TextView>(R.id.time1)
         val time2 = findViewById<TextView>(R.id.time2)
         val restButton = findViewById<Button>(R.id.restButton)
+        val stopButton = findViewById<Button>(R.id.stopButton) // 학습 종료 버튼
 
         // SharedPreferences 초기화
         prefs = getSharedPreferences("StudyTimePrefs", Context.MODE_PRIVATE)
@@ -48,6 +50,12 @@ class StudyTime : AppCompatActivity() {
                 restTime += System.currentTimeMillis() - prefs.getLong("startTime", 0) // 휴식 시간 업데이트
                 prefs.edit().putLong("startTime", System.currentTimeMillis()).apply() // 시작 시간 업데이트
             }
+        }
+
+        stopButton.setOnClickListener {
+            handler.removeCallbacksAndMessages(null) // 모든 타이머 멈춤
+            val intent = Intent(this, OtherActivity::class.java) // OtherActivity를 연결할 액티비티 이름으로 변경
+            startActivity(intent)
         }
     }
 
