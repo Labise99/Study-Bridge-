@@ -3,6 +3,8 @@ package com.example.study_bridge_capstone
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -36,8 +38,12 @@ class StudyTime : AppCompatActivity() {
     val time1 = findViewById<TextView>(R.id.time1)
     val time2 = findViewById<TextView>(R.id.time2)
     val restButton: Button = findViewById(R.id.restButton)
-    private var startTime = 0L
-    private var pauseOffset = 0L
+    private lateinit var handler: Handler
+    private lateinit var runnable: Runnable
+
+    private var startTime = 0L //공부 시작 시간
+    private var pauseOffset = 0L //일시정지 시간
+    private var goalTimeInSeconds = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,11 +55,20 @@ class StudyTime : AppCompatActivity() {
         //상단의 currentGoal에 현재 공부 내용 표기
         currentGoal.text = "tmpgoal" //tmpgoal 자리에 전달받은 공부 내용을 입력
         //학습시간 진행도 초기화
-        totalTime.max = 100 //100 자리에 설정한 목표공부시간 추가
+        totalTime.max = goalTimeInSeconds
         totalTime.progress = 0
         time1.text = "00:00:00"
         time2.text = "00:00:00"
+
         startTime = System.currentTimeMillis()
+
+        handler = Handler(Looper.getMainLooper())
+        runnable = object : Runnable {
+            override fun run() {
+                //주기적으로 시간 경과 계산
+                val elapsedSecons = ((System.currentTimeMillis() - startTime - pauseOffset) / 1000).toInt()
+            }
+        }
 
         restButton.setOnClickListener {
             if(restButton.text == "쉬는 시간")
