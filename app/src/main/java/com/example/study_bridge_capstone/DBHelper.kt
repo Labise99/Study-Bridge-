@@ -51,7 +51,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "database.db", null
         """.trimIndent()
 
         val createPlanTableSql = """
-            CREATE TABLE plan (
+            CREATE TABLE study_plan (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 study_time TIME
@@ -62,7 +62,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "database.db", null
             CREATE TABLE calendar (
                 date TEXT,
                 pid INTEGER,
-                FOREIGN KEY(pid) REFERENCES plan(id)
+                FOREIGN KEY(pid) REFERENCES study_plan(id)
             )
         """.trimIndent()
 
@@ -80,7 +80,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "database.db", null
         db.execSQL("DROP TABLE IF EXISTS timeline")
         db.execSQL("DROP TABLE IF EXISTS grade_data")
         db.execSQL("DROP TABLE IF EXISTS exam_data")
-        db.execSQL("DROP TABLE IF EXISTS plan")
+        db.execSQL("DROP TABLE IF EXISTS study_plan")
         db.execSQL("DROP TABLE IF EXISTS calendar")
         onCreate(db)
     }
