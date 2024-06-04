@@ -12,66 +12,85 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "database.db", null
     // 데이터베이스가 처음 생성될 때 호출되는 메소드
     override fun onCreate(db: SQLiteDatabase) {
         val createProfileTableSql = """
-            CREATE TABLE profile (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nickname TEXT,
-                goal TEXT,
-                identity TEXT
-            )
-        """.trimIndent()
-
-        val createTimelineTableSql = """
-            CREATE TABLE timeline (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                event TEXT,
-                time TEXT
-            )
-        """.trimIndent()
+        CREATE TABLE profile (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nickname TEXT,
+            goal TEXT,
+            identity TEXT
+        )
+    """.trimIndent()
 
         val createGradeDataTableSql = """
-            CREATE TABLE grade_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                semester TEXT,
-                subject TEXT,
-                total_credit REAL,
-                liberal_credit REAL,
-                major_credit REAL,
-                grade REAL
-            )
-        """.trimIndent()
+        CREATE TABLE grade_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            semester TEXT,
+            subject TEXT,
+            total_credit REAL,
+            liberal_credit REAL,
+            major_credit REAL,
+            grade REAL
+        )
+    """.trimIndent()
 
         val createExamDataTableSql = """
-            CREATE TABLE exam_data (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                date TEXT,
-                subject TEXT,
-                grade INTEGER,
-                raw INTEGER
-            )
-        """.trimIndent()
+        CREATE TABLE exam_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            subject TEXT,
+            grade INTEGER,
+            raw INTEGER
+        )
+    """.trimIndent()
 
-        val createPlanTableSql = """
-            CREATE TABLE study_plan (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                study_time TIME
-            )
-        """.trimIndent()
+        val createStudyPlanTableSql = """
+        CREATE TABLE study_plan (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            time TEXT
+        )
+    """.trimIndent()
 
-        val createCalendarTableSql = """
-            CREATE TABLE calendar (
-                date TEXT,
-                pid INTEGER,
-                FOREIGN KEY(pid) REFERENCES study_plan(id)
-            )
-        """.trimIndent()
+        val createTodayStudyTableSql = """
+        CREATE TABLE today_study (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            pid INTEGER,
+            is_checked INTEGER,
+            study_time TEXT,
+            rest_time TEXT,
+            waste_time TEXT,
+            FOREIGN KEY(pid) REFERENCES study_plan(id)
+        )
+    """.trimIndent()
+
+        val createGoalTableSql = """
+        CREATE TABLE goal (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            time TEXT
+        )
+    """.trimIndent()
+
+        val createTodayGoalTableSql = """
+        CREATE TABLE today_goal (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            pid INTEGER,
+            is_checked INTEGER,
+            work_time TEXT,
+            rest_time TEXT,
+            waste_time TEXT,
+            FOREIGN KEY(pid) REFERENCES goal(id)
+        )
+    """.trimIndent()
 
         db.execSQL(createProfileTableSql)
-        db.execSQL(createTimelineTableSql)
         db.execSQL(createGradeDataTableSql)
         db.execSQL(createExamDataTableSql)
-        db.execSQL(createPlanTableSql)
-        db.execSQL(createCalendarTableSql)
+        db.execSQL(createStudyPlanTableSql)
+        db.execSQL(createTodayStudyTableSql)
+        db.execSQL(createGoalTableSql)
+        db.execSQL(createTodayGoalTableSql)
     }
 
     // 데이터베이스가 업그레이드되어야 할 때 호출되는 메소드
