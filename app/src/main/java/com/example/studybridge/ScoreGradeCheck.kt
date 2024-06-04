@@ -1,5 +1,6 @@
 package com.example.studybridge
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.LinearLayout
@@ -27,9 +28,20 @@ class ScoreGradeCheck : AppCompatActivity() {
         // 인텐트로부터 기간 정보 가져오기
         val period = intent.getStringExtra("PERIOD")
 
-        // 그래프와 세부 정보를 위한 모의 데이터, 실제 데이터로 교체 필요
-        val grades = mapOf("수강 학점" to 18, "전공 학점" to 12, "교양 학점" to 6, "성적 정보" to 3.5)
-        val scores = mapOf("수강 학점" to 18, "전공 학점" to 12, "교양 학점" to 6, "성적 정보" to 3.5)
+        // 저장된 데이터 불러오기
+        val sharedPreferences = getSharedPreferences("ScoreGradeData", Context.MODE_PRIVATE)
+        val languageGrade = sharedPreferences.getString("languageGrade", "0")?.toFloat() ?: 0f
+        val mathGrade = sharedPreferences.getString("mathGrade", "0")?.toFloat() ?: 0f
+        val englishGrade = sharedPreferences.getString("englishGrade", "0")?.toFloat() ?: 0f
+        val koreanHistoryGrade = sharedPreferences.getString("koreanHistoryGrade", "0")?.toFloat() ?: 0f
+
+        // 그래프와 세부 정보를 위한 데이터
+        val scores = mapOf(
+            "수강 학점" to languageGrade,
+            "전공 학점" to mathGrade,
+            "교양 학점" to englishGrade,
+            "성적 정보" to koreanHistoryGrade
+        )
 
         // 바 차트 설정
         val barChart = BarChart(this)
@@ -39,7 +51,7 @@ class ScoreGradeCheck : AppCompatActivity() {
 
         // 점수를 바 차트에 추가
         for ((subject, score) in scores) {
-            entries.add(BarEntry(i.toFloat(), score.toFloat()))
+            entries.add(BarEntry(i.toFloat(), score))
             labels.add(subject)
             i++
         }
@@ -69,11 +81,15 @@ class ScoreGradeCheck : AppCompatActivity() {
         ))
 
         // 세부 정보 텍스트뷰 설정
-        val details = StringBuilder()
-        details.append("기간: $period\n\n")
-        for ((subject, grade) in grades) {
-            details.append("$subject: $grade\n")
-        }
-        scoreDetails.text = details.toString()
+        val details = """
+            기간: $period
+            
+            수강 학점: ${scores["수강 학점"]}
+            전공 학점: ${scores["전공 학점"]}
+            교양 학점: ${scores["교양 학점"]}
+            성적 정보: ${scores["성적 정보"]}
+        """.trimIndent()
+
+        scoreDetails.text = details
     }
 }

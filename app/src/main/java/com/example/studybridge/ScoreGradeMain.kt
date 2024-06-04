@@ -3,16 +3,11 @@ package com.example.studybridge
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class ScoreGradeMain : AppCompatActivity() {
     private lateinit var gradePeriodTextView: TextView
@@ -32,21 +27,21 @@ class ScoreGradeMain : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // nav_button1 클릭 시 ScoreMain으로 이동
+        // nav_button1 클릭 시 ProfileMainActivity으로 이동
         val profileButton: ImageButton = findViewById(R.id.nav_button5)
         profileButton.setOnClickListener {
             val intent = Intent(this, ProfileMainActivity::class.java)
             startActivity(intent)
         }
 
-        // nav_button1 클릭 시 homeMain으로 이동
+        // nav_button1 클릭 시 StudyBridgeMainHome으로 이동
         val homeButton: ImageButton = findViewById(R.id.nav_button3)
         homeButton.setOnClickListener {
             val intent = Intent(this, StudyBridgeMainHome::class.java)
             startActivity(intent)
         }
 
-        // nav_button1 클릭 시 ScoreMain으로 이동
+        // nav_button1 클릭 시 MainActivity으로 이동
         val planButton: ImageButton = findViewById(R.id.nav_button4)
         planButton.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
