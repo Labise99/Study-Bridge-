@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">studybridge</string>
+    <string name="logout">로그아웃</string>
+    <string name="remove_data">회원탈퇴</string>
+    <string name="alarm_set">알람설정</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_score">Score</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_statistics">Statistics</string>
+    <string name="nav_planner">Planner</string>
+    <string-array name="identity_array">
+        <item>초등학생</item>
+        <item>중학생</item>
+        <item>고등학생</item>
+        <item>대학/대학원생</item>
+        <item>사회/직장인</item>
+    </string-array>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/menu/bottom_nav_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_score"
+        android:icon="@drawable/score_img"
+        android:title="Score" />
+    <item
+        android:id="@+id/nav_statistics"
+        android:icon="@drawable/statistics_img"
+        android:title="Statistics" />
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/home_img"
+        android:title="Home" />
+    <item
+        android:id="@+id/nav_planner"
+        android:icon="@drawable/planner_img"
+        android:title="Planner" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/profile_nav_img"
+        android:title="Profile" />
+</menu>
